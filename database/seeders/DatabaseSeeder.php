@@ -30,6 +30,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'finance',
         ]);
 
+        $hrd = User::create([
+            'name' => 'Mega (HRD Staff)',
+            'email' => 'hrd@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'hrd',
+        ]);
+
         $karyawan1 = User::create([
             'name' => 'Andi (Karyawan)',
             'email' => 'andi@example.com',

@@ -4,12 +4,11 @@
 
 @section('content')
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="space-y-8">
         
-        @if(Auth::user()->isFinance())
-        <!-- Register Employee Profile Form (Left 1 column) -->
-        <div class="space-y-6">
-            <div class="glass-panel p-6 rounded-2xl">
+        @if(Auth::user()->isHrd())
+        <!-- Register Employee Profile Form (Top) -->
+        <div class="glass-panel p-6 rounded-2xl">
                 <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4 mb-4">Daftar Karyawan Baru</h3>
                 <form action="{{ route('employees.store') }}" method="POST" class="space-y-4">
                     @csrf
@@ -24,17 +23,22 @@
                         <input type="text" name="position" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Programmer, Designer">
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Gaji Pokok (Rupiah)</label>
-                        <input type="text" id="base_salary_input" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFBF00]" placeholder="Contoh: 8.000.000">
-                        <input type="hidden" name="base_salary" id="base_salary_hidden">
-                    </div>
+                    @if(Auth::user()->isHrd())
+                        <input type="hidden" name="base_salary" value="0">
+                        <input type="hidden" name="allowance" value="0">
+                    @else
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Gaji Pokok (Rupiah)</label>
+                            <input type="text" id="base_salary_input" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFBF00]" placeholder="Contoh: 8.000.000">
+                            <input type="hidden" name="base_salary" id="base_salary_hidden">
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tunjangan (Rupiah)</label>
-                        <input type="text" id="allowance_input" required value="0" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFBF00]">
-                        <input type="hidden" name="allowance" id="allowance_hidden" value="0">
-                    </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tunjangan (Rupiah)</label>
+                            <input type="text" id="allowance_input" required value="0" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFBF00]">
+                            <input type="hidden" name="allowance" id="allowance_hidden" value="0">
+                        </div>
+                    @endif
 
                     <!-- Create User Account Toggle -->
                     <div class="border-t border-slate-800 pt-4">
@@ -70,153 +74,10 @@
                     </button>
                 </form>
             </div>
-        </div>
         @endif
 
-        <!-- Attendance & Employees table (Right 2 columns) -->
-        <div class="@if(Auth::user()->isFinance()) lg:col-span-2 @else lg:col-span-3 @endif space-y-8">
-            
-            <!-- Input Absensi Karyawan -->
-            <div class="glass-panel p-6 rounded-2xl">
-                <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4 mb-4">
-                    @if(Auth::user()->isFinance()) Input Log Kehadiran Harian @else Log Kehadiran Harian @endif
-                </h3>
-                
-                @if($employees->isEmpty())
-                    <p class="text-slate-500 text-sm">Daftarkan karyawan terlebih dahulu sebelum menginput absensi.</p>
-                @else
-                    <form action="{{ route('attendance.log') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <div class="flex items-center gap-4 mb-4">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pilih Tanggal Absensi:</label>
-                            <input type="date" name="date" value="{{ $selectedDate }}" required onchange="window.location.href='{{ route('employees.index') }}?date=' + this.value" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Desktop Table View -->
-                        <div class="hidden md:block overflow-x-auto">
-                            <table class="w-full min-w-[650px] text-left text-sm">
-                                <thead>
-                                    <tr class="text-slate-400 border-b border-slate-800">
-                                        <th class="pb-2">Nama Karyawan</th>
-                                        <th class="pb-2">Jabatan</th>
-                                        <th class="pb-2 text-center">Hadir (Present)</th>
-                                        <th class="pb-2 text-center">Alpa (Absent)</th>
-                                        <th class="pb-2 text-center">Izin/Cuti (Leave)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-800/40">
-                                    @foreach($employees as $emp)
-                                        @php
-                                            $todayStr = $selectedDate;
-                                            $todayAttendance = $emp->attendances->first(function($att) use ($todayStr) {
-                                                return \Carbon\Carbon::parse($att->date)->format('Y-m-d') === $todayStr;
-                                            });
-                                            $status = $todayAttendance ? $todayAttendance->status : 'absent';
-                                        @endphp
-                                        <tr>
-                                            <td class="py-3 text-slate-200 font-medium">{{ $emp->name }}</td>
-                                            <td class="py-3 text-slate-400 text-xs">{{ $emp->position }}</td>
-                                            <td class="py-3 text-center">
-                                                 @if(Auth::user()->isOwner())
-                                                     @if($status === 'present')
-                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold">✓</span>
-                                                     @else
-                                                         <span class="text-slate-600">-</span>
-                                                     @endif
-                                                 @else
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 cursor-not-allowed">
-                                                 @endif
-                                            </td>
-                                            <td class="py-3 text-center">
-                                                 @if(Auth::user()->isOwner())
-                                                     @if($status === 'absent')
-                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-xs font-bold">✗</span>
-                                                     @else
-                                                         <span class="text-slate-600">-</span>
-                                                     @endif
-                                                 @else
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-rose-500 focus:ring-rose-500 focus:ring-offset-slate-900 cursor-not-allowed">
-                                                 @endif
-                                            </td>
-                                            <td class="py-3 text-center">
-                                                 @if(Auth::user()->isOwner())
-                                                     @if($status === 'leave')
-                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-950 text-amber-400 border border-amber-800 text-xs font-bold">i</span>
-                                                     @else
-                                                         <span class="text-slate-600">-</span>
-                                                     @endif
-                                                 @else
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-900 cursor-not-allowed">
-                                                 @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Mobile Card View -->
-                        <div class="block md:hidden space-y-4 mb-4">
-                            @foreach($employees as $emp)
-                                @php
-                                    $todayStr = $selectedDate;
-                                    $todayAttendance = $emp->attendances->first(function($att) use ($todayStr) {
-                                        return \Carbon\Carbon::parse($att->date)->format('Y-m-d') === $todayStr;
-                                    });
-                                    $status = $todayAttendance ? $todayAttendance->status : 'absent';
-                                @endphp
-                                <div class="p-4 rounded-xl bg-slate-900/20 border border-slate-800/80 space-y-3">
-                                    <div class="flex justify-between items-start border-b border-slate-800/40 pb-2">
-                                        <div>
-                                            <h4 class="font-bold text-slate-200 text-sm">{{ $emp->name }}</h4>
-                                            <p class="text-[10px] text-slate-500">{{ $emp->position }}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Status Kehadiran:</label>
-                                        @if(Auth::user()->isOwner())
-                                            <div class="flex items-center gap-2">
-                                                @if($status === 'present')
-                                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase">Hadir (Present)</span>
-                                                @elseif($status === 'absent')
-                                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800 uppercase">Alpa (Absent)</span>
-                                                @else
-                                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 uppercase">Izin (Leave)</span>
-                                                @endif
-                                            </div>
-                                        @else
-                                             <div class="grid grid-cols-3 gap-2">
-                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500">
-                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Hadir</span>
-                                                 </label>
-                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-rose-500 focus:ring-rose-500">
-                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Alpa</span>
-                                                 </label>
-                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
-                                                     <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-amber-500 focus:ring-amber-500">
-                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Izin</span>
-                                                 </label>
-                                             </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        @if(Auth::user()->isFinance())
-                        <button type="submit" class="w-full py-2.5 rounded-xl bg-[#FFBF00] hover:bg-[#ffd040] text-[#081d27] font-bold transition duration-200 uppercase tracking-wider text-xs shadow-lg shadow-[#FFBF00]/10">
-                            Simpan Absensi Hari Ini
-                        </button>
-                        @endif
-                    </form>
-                @endif
-            </div>
-
-            <!-- List Karyawan Terdaftar -->
-            <div class="glass-panel p-6 rounded-2xl">
+        <!-- Employees table (Bottom) -->
+        <div class="glass-panel p-6 rounded-2xl">
                 <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4 mb-4">Daftar Anggota Karyawan</h3>
                 <!-- Desktop Table View -->
                 <div class="hidden md:block overflow-x-auto">
@@ -225,9 +86,15 @@
                             <tr class="text-slate-400 border-b border-slate-800">
                                 <th class="pb-2">Nama</th>
                                 <th class="pb-2">Jabatan</th>
-                                <th class="pb-2 text-right">Gaji Pokok</th>
-                                <th class="pb-2 text-right">Tunjangan</th>
-                                <th class="pb-2 text-center">Total Absen Alpa</th>
+                                @if(Auth::user()->isFinance())
+                                    <th class="pb-2 text-right">Gaji Pokok</th>
+                                    <th class="pb-2 text-right">Tunjangan</th>
+                                    <th class="pb-2 text-right pr-4">Pengaturan Gaji</th>
+                                @else
+                                    <th class="pb-2 text-center">Hadir</th>
+                                    <th class="pb-2 text-center">Izin/Cuti</th>
+                                    <th class="pb-2 text-center">Alpa</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/40">
@@ -235,13 +102,37 @@
                                 <tr>
                                     <td class="py-3 text-slate-200 font-semibold">{{ $emp->name }}</td>
                                     <td class="py-3 text-slate-400">{{ $emp->position }}</td>
-                                    <td class="py-3 text-right text-slate-300">Rp {{ number_format($emp->base_salary, 0, ',', '.') }}</td>
-                                    <td class="py-3 text-right text-slate-300">Rp {{ number_format($emp->allowance, 0, ',', '.') }}</td>
-                                    <td class="py-3 text-center">
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold {{ $emp->attendances->where('status', 'absent')->count() > 0 ? 'bg-rose-950 text-rose-400' : 'bg-slate-900 text-slate-500' }}">
-                                            {{ $emp->attendances->where('status', 'absent')->count() }} Hari
-                                        </span>
-                                    </td>
+                                    @if(Auth::user()->isFinance())
+                                        <td class="py-3 text-right text-slate-300">Rp {{ number_format($emp->base_salary, 0, ',', '.') }}</td>
+                                        <td class="py-3 text-right text-slate-300">Rp {{ number_format($emp->allowance, 0, ',', '.') }}</td>
+                                        <td class="py-3 text-right">
+                                            <form action="{{ route('employees.update_salary', $emp->id) }}" method="POST" class="flex items-center justify-end gap-1.5">
+                                                @csrf
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-[10px] text-slate-500">Gaji:</span>
+                                                    <input type="number" name="base_salary" value="{{ (int)$emp->base_salary }}" required class="w-20 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white text-right focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-[10px] text-slate-500">Tunj:</span>
+                                                    <input type="number" name="allowance" value="{{ (int)$emp->allowance }}" required class="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white text-right focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                </div>
+                                                <button type="submit" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold transition">Simpan</button>
+                                            </form>
+                                        </td>
+                                    @else
+                                        @php
+                                            $activeMonth = date('Y-m', strtotime($selectedDate));
+                                            $monthlyAttendances = $emp->attendances->filter(function($att) use ($activeMonth) {
+                                                return str_starts_with($att->date, $activeMonth);
+                                            });
+                                            $presentDays = $monthlyAttendances->where('status', 'present')->count();
+                                            $leaveDays = $monthlyAttendances->where('status', 'leave')->count();
+                                            $absentDays = $monthlyAttendances->where('status', 'absent')->count();
+                                        @endphp
+                                        <td class="py-3 text-center text-emerald-400 font-bold">{{ $presentDays }} Hari</td>
+                                        <td class="py-3 text-center text-amber-400 font-bold">{{ $leaveDays }} Hari</td>
+                                        <td class="py-3 text-center text-rose-400 font-bold">{{ $absentDays }} Hari</td>
+                                    @endif
                                 </tr>
                             @endforeach
                             @if($employees->isEmpty())
@@ -256,33 +147,69 @@
                 <!-- Mobile Card View -->
                 <div class="block md:hidden space-y-4">
                     @foreach($employees as $emp)
-                        <div class="p-4 rounded-xl bg-slate-900/20 border border-slate-800 space-y-2.5">
+                        <div class="p-4 rounded-xl bg-slate-900/20 border border-slate-800 space-y-3">
                             <div class="flex justify-between items-start border-b border-slate-800/40 pb-2">
                                 <div>
                                     <h4 class="font-bold text-slate-200 text-sm">{{ $emp->name }}</h4>
                                     <p class="text-[10px] text-slate-500">{{ $emp->position }}</p>
                                 </div>
-                                <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold {{ $emp->attendances->where('status', 'absent')->count() > 0 ? 'bg-rose-950 text-rose-455 border border-rose-800' : 'bg-slate-900 text-slate-500 border border-slate-800' }}">
-                                    {{ $emp->attendances->where('status', 'absent')->count() }} Alpa
-                                </span>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-y-1.5 text-xs">
-                                <div class="text-slate-400">Gaji Pokok:</div>
-                                <div class="text-right text-slate-200">Rp {{ number_format($emp->base_salary, 0, ',', '.') }}</div>
-                                
-                                <div class="text-slate-400">Tunjangan:</div>
-                                <div class="text-right text-slate-200">Rp {{ number_format($emp->allowance, 0, ',', '.') }}</div>
-                            </div>
+                            @if(Auth::user()->isFinance())
+                                <div class="grid grid-cols-2 gap-y-1.5 text-xs pb-2 border-b border-slate-800/40">
+                                    <div class="text-slate-400">Gaji Pokok:</div>
+                                    <div class="text-right text-slate-200">Rp {{ number_format($emp->base_salary, 0, ',', '.') }}</div>
+                                    
+                                    <div class="text-slate-400">Tunjangan:</div>
+                                    <div class="text-right text-slate-200">Rp {{ number_format($emp->allowance, 0, ',', '.') }}</div>
+                                </div>
+
+                                <form action="{{ route('employees.update_salary', $emp->id) }}" method="POST" class="space-y-2 pt-1">
+                                    @csrf
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Update Gaji</p>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-[9px] text-slate-500">Gaji Pokok</span>
+                                            <input type="number" name="base_salary" value="{{ (int)$emp->base_salary }}" required class="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-[9px] text-slate-500">Tunjangan</span>
+                                            <input type="number" name="allowance" value="{{ (int)$emp->allowance }}" required class="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold transition">Simpan Gaji</button>
+                                </form>
+                            @else
+                                @php
+                                    $activeMonth = date('Y-m', strtotime($selectedDate));
+                                    $monthlyAttendances = $emp->attendances->filter(function($att) use ($activeMonth) {
+                                        return str_starts_with($att->date, $activeMonth);
+                                    });
+                                    $presentDays = $monthlyAttendances->where('status', 'present')->count();
+                                    $leaveDays = $monthlyAttendances->where('status', 'leave')->count();
+                                    $absentDays = $monthlyAttendances->where('status', 'absent')->count();
+                                @endphp
+                                <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                                    <div class="p-1.5 rounded bg-emerald-950/20 border border-emerald-900/30">
+                                        <span class="text-[9px] text-slate-500 block">Hadir</span>
+                                        <span class="text-emerald-400 font-bold">{{ $presentDays }} Hari</span>
+                                    </div>
+                                    <div class="p-1.5 rounded bg-amber-950/20 border border-amber-900/30">
+                                        <span class="text-[9px] text-slate-500 block">Izin</span>
+                                        <span class="text-amber-400 font-bold">{{ $leaveDays }} Hari</span>
+                                    </div>
+                                    <div class="p-1.5 rounded bg-rose-950/20 border border-rose-800/30">
+                                        <span class="text-[9px] text-slate-500 block">Alpa</span>
+                                        <span class="text-rose-400 font-bold">{{ $absentDays }} Hari</span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                     @if($employees->isEmpty())
                         <p class="text-slate-500 text-xs text-center py-4">Belum ada profil karyawan terdaftar.</p>
                     @endif
                 </div>
-            </div>
-
-        </div>
 
     </div>
 
@@ -339,6 +266,14 @@
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
         });
+
+        @if(session('print_attendance_date'))
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    window.open('{{ route("attendance.report", ["date" => session("print_attendance_date")]) }}', '_blank');
+                }, 300);
+            });
+        @endif
     </script>
 
 @endsection

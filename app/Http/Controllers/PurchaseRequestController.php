@@ -60,7 +60,7 @@ class PurchaseRequestController extends Controller
     {
         // Only owner or finance can approve
         $user = Auth::user();
-        if (!$user->isOwner() && !$user->isFinance()) {
+        if (!$user->isFinance()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -100,7 +100,7 @@ class PurchaseRequestController extends Controller
     public function reject(PurchaseRequest $purchaseRequest)
     {
         $user = Auth::user();
-        if (!$user->isOwner() && !$user->isFinance()) {
+        if (!$user->isFinance()) {
             abort(403, 'Akses ditolak.');
         }
 

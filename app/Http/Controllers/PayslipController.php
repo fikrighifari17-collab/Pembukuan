@@ -24,8 +24,9 @@ class PayslipController extends Controller
             ->get();
 
         $employees = Employee::orderBy('name')->get();
+        $attendanceRequest = \App\Models\AttendanceRequest::where('month', $selectedMonth)->first();
 
-        return view('payslips.index', compact('payslips', 'employees', 'selectedMonth'));
+        return view('payslips.index', compact('payslips', 'employees', 'selectedMonth', 'attendanceRequest'));
     }
 
     public function generate(Request $request)
@@ -42,6 +43,12 @@ class PayslipController extends Controller
 
         $month = $request->month;
         $deductionRate = $request->deduction_per_absent;
+
+        // Validate that attendance data has been provided by HRD
+        $attReq = \App\Models\AttendanceRequest::where('month', $month)->first();
+        if (!$attReq || $attReq->status !== 'provided') {
+            return back()->with('error', 'Gagal memproses slip gaji. HRD belum menyerahkan/menyetujui absensi untuk bulan ' . $month . '.');
+        }
 
         $employeeQuery = Employee::with(['attendances' => function ($query) use ($month) {
             $query->where('date', 'like', $month . '-%');
@@ -94,6 +101,10 @@ class PayslipController extends Controller
 
     public function pay(Payslip $payslip)
     {
+        if (Auth::user()->isOwner()) {
+            abort(403, 'Owner tidak dapat melakukan pembayaran gaji.');
+        }
+
         $payslip->update(['status' => 'paid']);
 
         // Find or create 'Gaji Karyawan' category

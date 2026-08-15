@@ -14,6 +14,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
+        $selectedEmployeeId = $request->input('employee_id');
 
         $employees = Employee::with(['user', 'attendances'])->orderBy('name')->get();
         
@@ -28,7 +29,13 @@ class EmployeeController extends Controller
             ->limit(20)
             ->get();
 
-        return view('employees.index', compact('employees', 'availableUsers', 'recentAttendances', 'selectedDate'));
+        // Filter the employees for the attendance list if a specific employee is selected
+        $attendanceEmployees = $employees;
+        if ($selectedEmployeeId) {
+            $attendanceEmployees = $employees->where('id', $selectedEmployeeId);
+        }
+
+        return view('employees.index', compact('employees', 'attendanceEmployees', 'availableUsers', 'recentAttendances', 'selectedDate', 'selectedEmployeeId'));
     }
 
     public function store(Request $request)
@@ -88,7 +95,42 @@ class EmployeeController extends Controller
 
         AuditLog::log('Log Attendance', 'Logged attendance for date ' . $date);
 
-        return redirect()->route('employees.index')->with('success', 'Absensi berhasil disimpan.');
+        return redirect()->route('employees.index', ['date' => $date])->with([
+            'success' => 'Absensi berhasil disimpan.',
+            'print_attendance_date' => $date
+        ]);
+    }
+
+    public function report(Request $request)
+    {
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        $employees = Employee::with(['attendances' => function($q) use ($date) {
+            $q->whereDate('date', $date);
+        }])->orderBy('name')->get();
+
+        return view('attendance_report', compact('employees', 'date'));
+    }
+
+    public function updateSalary(Request $request, Employee $employee)
+    {
+        if (!\Auth::user()->isOwner() && !\Auth::user()->isFinance()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'base_salary' => 'required|numeric|min:0',
+            'allowance' => 'required|numeric|min:0',
+        ]);
+
+        $employee->update([
+            'base_salary' => $request->base_salary,
+            'allowance' => $request->allowance,
+        ]);
+
+        AuditLog::log('Update Salary', 'Updated salary for employee ' . $employee->name . ' (Base: ' . $request->base_salary . ', Allowance: ' . $request->allowance . ')');
+
+        return back()->with('success', 'Gaji karyawan ' . $employee->name . ' berhasil diperbarui.');
     }
 
     public function checkIn(Request $request)
@@ -132,15 +174,15 @@ class EmployeeController extends Controller
                 return back()->with('error', 'Anda sudah melakukan absen datang hari ini.');
             }
 
-            // Block check-in before 07:00
-            $now = now();
-            $standardStartTime = now()->setTime(7, 0, 0);
-            if ($now->lessThan($standardStartTime)) {
-                return back()->with('error', 'Belum bisa absen datang. Absen datang baru dibuka mulai pukul 07:00 pagi.');
-            }
-
             if (!$imagePath) {
                 return back()->with('error', 'Foto bukti hadir wajib diunggah untuk absen datang.');
+            }
+
+            $now = now();
+            $standardLateTime = now()->setTime(8, 0, 0);
+            $lateMessage = '';
+            if ($now->greaterThan($standardLateTime)) {
+                $lateMessage = ' (Terlambat)';
             }
 
             $attendance = Attendance::create([
@@ -155,8 +197,8 @@ class EmployeeController extends Controller
                 'longitude' => $request->longitude,
             ]);
 
-            AuditLog::log('Employee Check-in', $employee->name . ' checked in for work at ' . $currentTimeStr);
-            return back()->with('success', 'Absen datang berhasil dicatat pukul ' . $currentTimeStr);
+            AuditLog::log('Employee Check-in', $employee->name . ' checked in for work at ' . $currentTimeStr . $lateMessage);
+            return back()->with('success', 'Absen datang berhasil dicatat pukul ' . $currentTimeStr . $lateMessage);
 
         } elseif ($request->action === 'check_out') {
             // Absen Pulang
@@ -168,17 +210,18 @@ class EmployeeController extends Controller
                 return back()->with('error', 'Anda sudah melakukan absen pulang hari ini.');
             }
 
-            // Block check-out before 17:00
             $now = now();
             $standardExitTime = now()->setTime(17, 0, 0);
-            if ($now->lessThan($standardExitTime)) {
-                return back()->with('error', 'Belum bisa absen pulang. Jam pulang kantor adalah pukul 17:00.');
-            }
 
             // Calculate Overtime automatically
             $overtimeHours = 0;
             if ($now->greaterThan($standardExitTime)) {
                 $overtimeHours = $now->diffInHours($standardExitTime);
+            }
+
+            $earlyMessage = '';
+            if ($now->lessThan($standardExitTime)) {
+                $earlyMessage = ' (Pulang Cepat)';
             }
 
             $updateData = [
@@ -196,8 +239,8 @@ class EmployeeController extends Controller
 
             $attendance->update($updateData);
 
-            AuditLog::log('Employee Check-out', $employee->name . ' checked out from work at ' . $currentTimeStr . ' (Overtime: ' . $overtimeHours . ' hours)');
-            return back()->with('success', 'Absen pulang berhasil dicatat pukul ' . $currentTimeStr . ($overtimeHours > 0 ? ' (Lembur: ' . $overtimeHours . ' jam)' : ''));
+            AuditLog::log('Employee Check-out', $employee->name . ' checked out from work at ' . $currentTimeStr . $earlyMessage . ' (Overtime: ' . $overtimeHours . ' hours)');
+            return back()->with('success', 'Absen pulang berhasil dicatat pukul ' . $currentTimeStr . $earlyMessage . ($overtimeHours > 0 ? ' (Lembur: ' . $overtimeHours . ' jam)' : ''));
 
         } elseif ($request->action === 'absent_leave') {
             // Absen Alpa / Izin Cuti
@@ -223,5 +266,84 @@ class EmployeeController extends Controller
         }
 
         return back();
+    }
+
+    public function requestAttendance(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|string',
+        ]);
+
+        $month = $request->month;
+
+        \App\Models\AttendanceRequest::updateOrCreate(
+            ['month' => $month],
+            [
+                'status' => 'pending',
+                'requested_by' => \Auth::id(),
+            ]
+        );
+
+        AuditLog::log('Request Attendance', 'Finance requested attendance for month ' . $month);
+
+        return back()->with('success', 'Berhasil meminta data absensi ke HRD untuk bulan ' . $month);
+    }
+
+    public function provideAttendance(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|string',
+        ]);
+
+        $month = $request->month;
+
+        \App\Models\AttendanceRequest::updateOrCreate(
+            ['month' => $month],
+            [
+                'status' => 'provided',
+                'provided_by' => \Auth::id(),
+            ]
+        );
+
+        AuditLog::log('Provide Attendance', 'HRD provided attendance for month ' . $month);
+
+        return back()->with('success', 'Berhasil menyerahkan data absensi untuk bulan ' . $month . ' ke Finance.');
+    }
+
+    public function monthlyReport(Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+
+        // Find if this month has been provided
+        $attReq = \App\Models\AttendanceRequest::where('month', $month)->first();
+
+        // If logged in user is Finance and it has NOT been provided, and user is not Owner, abort
+        if (\Auth::user()->isFinance() && (!$attReq || $attReq->status !== 'provided')) {
+            abort(403, 'Akses ditolak. HRD belum menyerahkan/menyetujui absensi untuk bulan ini.');
+        }
+
+        $employees = Employee::with(['attendances' => function($q) use ($month) {
+            $q->where('date', 'like', $month . '-%');
+        }])->orderBy('name')->get();
+
+        return view('attendance_monthly_report', compact('employees', 'month', 'attReq'));
+    }
+
+    public function individualReport(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'month' => 'required|string',
+        ]);
+
+        $employee = Employee::findOrFail($request->employee_id);
+        $month = $request->month;
+
+        $attendances = Attendance::where('employee_id', $employee->id)
+            ->where('date', 'like', $month . '-%')
+            ->orderBy('date')
+            ->get();
+
+        return view('attendance_individual_report', compact('employee', 'month', 'attendances'));
     }
 }

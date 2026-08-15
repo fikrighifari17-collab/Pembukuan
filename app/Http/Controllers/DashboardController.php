@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $selectedDate = $request->query('date', now()->format('Y-m-d'));
 
         // Standard metrics
         $totalIncome = Transaction::where('type', 'income')->sum('amount');
@@ -68,7 +69,8 @@ class DashboardController extends Controller
             'auditLogs',
             'myEmployeeInfo',
             'myPayslips',
-            'myPurchaseRequests'
+            'myPurchaseRequests',
+            'selectedDate'
         ));
     }
 

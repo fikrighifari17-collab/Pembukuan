@@ -49,7 +49,7 @@
                             <div class="flex items-center gap-3">
                                 <h4 class="font-bold text-base text-slate-200">{{ $req->title }}</h4>
                                 <span class="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase {{ $req->status === 'approved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : ($req->status === 'rejected' ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-amber-950 text-amber-400 border border-amber-800') }}">
-                                    {{ $req->status }}
+                                    {{ $req->status === 'approved' ? 'Diterima' : ($req->status === 'rejected' ? 'Ditolak' : 'Menunggu') }}
                                 </span>
                             </div>
                             <p class="text-sm text-slate-400">{{ $req->description ?? 'Tidak ada deskripsi.' }}</p>
@@ -67,22 +67,36 @@
                                 Rp {{ number_format($req->amount, 0, ',', '.') }}
                             </span>
 
-                            <!-- Actions for Owner or Finance staff when Pending -->
-                            @if($req->status === 'pending' && (Auth::user()->isOwner() || Auth::user()->isFinance()))
-                                <div class="flex items-center gap-2">
-                                    <form action="{{ route('purchase_requests.approve', $req->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-                                            Setujui
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('purchase_requests.reject', $req->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition">
-                                            Tolak
-                                        </button>
-                                    </form>
-                                </div>
+                            <!-- Actions for Finance staff when Pending -->
+                            @if($req->status === 'pending')
+                                @if(Auth::user()->isFinance())
+                                    <div class="flex items-center gap-2">
+                                        <form action="{{ route('purchase_requests.approve', $req->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
+                                                Setujui
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('purchase_requests.reject', $req->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition">
+                                                Tolak
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <span class="text-xs text-amber-500 font-semibold italic bg-amber-950/20 border border-amber-900/30 px-3 py-1.5 rounded-xl">
+                                        Menunggu Persetujuan Finance
+                                    </span>
+                                @endif
+                            @elseif($req->status === 'approved')
+                                <span class="text-xs text-emerald-400 font-semibold bg-emerald-950/20 border border-emerald-900/30 px-3 py-1.5 rounded-xl">
+                                    Diterima & Dicatat
+                                </span>
+                            @else
+                                <span class="text-xs text-rose-400 font-semibold bg-rose-950/20 border border-rose-900/30 px-3 py-1.5 rounded-xl">
+                                    Pengajuan Ditolak
+                                </span>
                             @endif
                         </div>
                     </div>

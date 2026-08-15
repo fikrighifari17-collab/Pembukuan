@@ -76,16 +76,28 @@ Route::middleware(['auth'])->group(function () {
 
         Route::middleware(['role:finance'])->group(function () {
             Route::post('/payslips/generate', [PayslipController::class, 'generate'])->name('payslips.generate');
+            Route::post('/attendance/request', [EmployeeController::class, 'requestAttendance'])->name('attendance.request.create');
         });
     });
 
-    // HR Management (Viewing open to Owner and Finance, modifying restricted to Finance)
-    Route::middleware(['role:owner,finance'])->group(function () {
+    // HR Management (Viewing open to Owner, Finance, and HRD)
+    Route::middleware(['role:owner,finance,hrd'])->group(function () {
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::get('/attendance/report', [EmployeeController::class, 'report'])->name('attendance.report');
     });
 
     Route::middleware(['role:finance'])->group(function () {
+        Route::post('/employees/{employee}/salary', [EmployeeController::class, 'updateSalary'])->name('employees.update_salary');
+    });
+
+    Route::middleware(['role:hrd'])->group(function () {
         Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
         Route::post('/attendance/log', [EmployeeController::class, 'logAttendance'])->name('attendance.log');
+        Route::post('/attendance/provide', [EmployeeController::class, 'provideAttendance'])->name('attendance.provide');
+    });
+
+    Route::middleware(['role:owner,finance,hrd'])->group(function () {
+        Route::get('/attendance/report/monthly', [EmployeeController::class, 'monthlyReport'])->name('attendance.monthly_report');
+        Route::get('/attendance/report/individual', [EmployeeController::class, 'individualReport'])->name('attendance.individual_report');
     });
 });

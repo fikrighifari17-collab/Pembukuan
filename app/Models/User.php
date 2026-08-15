@@ -60,6 +60,11 @@ class User extends Authenticatable
         return $this->role === 'finance';
     }
 
+    public function isHrd(): bool
+    {
+        return $this->role === 'hrd';
+    }
+
     public function isKaryawan(): bool
     {
         return $this->role === 'karyawan';

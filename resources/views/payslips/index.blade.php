@@ -4,12 +4,62 @@
 
 @section('content')
 
-    <div class="grid grid-cols-1 @if(!Auth::user()->isOwner()) lg:grid-cols-3 @endif gap-8">
+    <div class="space-y-8">
         
         @if(!Auth::user()->isOwner())
-        <!-- Generate Payroll Panel (Left 1 column) -->
-        <div class="glass-panel p-6 rounded-2xl h-fit">
-            <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4 mb-4">Generate Slip Gaji</h3>
+        <!-- Top Row (Attendance Request and Generate Payroll side-by-side) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Attendance Data Request / Provided status Panel -->
+            <div class="glass-panel p-6 rounded-2xl h-fit space-y-4">
+                <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4">Dokumen Absensi HRD</h3>
+                
+                @if(!$attendanceRequest)
+                    <div class="p-3 bg-amber-950/40 border border-amber-800/40 rounded-xl">
+                        <p class="text-xs text-amber-400 font-medium">Data absensi bulan ini belum diminta ke HRD atau diserahkan oleh HRD.</p>
+                    </div>
+                    @if(Auth::user()->isFinance())
+                        <form action="{{ route('attendance.request.create') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="month" value="{{ $selectedMonth }}">
+                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition">
+                                Minta Data Absensi ke HRD
+                            </button>
+                        </form>
+                    @endif
+                @elseif($attendanceRequest->status === 'pending')
+                    <div class="p-3 bg-blue-950/40 border border-blue-800/40 rounded-xl space-y-2">
+                        <p class="text-xs text-blue-400 font-medium">Menunggu HRD untuk menyerahkan/menyetujui absensi bulan ini...</p>
+                        @if($attendanceRequest->requested_by && $attendanceRequest->created_at)
+                            <div class="text-[10px] text-slate-400 border-t border-blue-900/40 pt-1.5 space-y-0.5">
+                                <p>Diminta oleh: <span class="text-slate-300 font-semibold">{{ $attendanceRequest->requester->name }}</span></p>
+                                <p>Waktu Minta: <span class="text-slate-300">{{ $attendanceRequest->created_at->translatedFormat('d F Y, H:i') }}</span></p>
+                            </div>
+                        @endif
+                    </div>
+                @elseif($attendanceRequest->status === 'provided')
+                    <div class="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-xl space-y-2">
+                        <p class="text-xs text-emerald-400 font-medium">Data absensi telah diserahkan oleh HRD!</p>
+                        <div class="text-[10px] text-slate-400 border-t border-emerald-900/40 pt-1.5 space-y-0.5">
+                            @if($attendanceRequest->requested_by && $attendanceRequest->created_at)
+                                <p>Diminta oleh: <span class="text-slate-300 font-semibold">{{ $attendanceRequest->requester->name }}</span></p>
+                                <p>Waktu Minta: <span class="text-slate-300">{{ $attendanceRequest->created_at->translatedFormat('d F Y, H:i') }}</span></p>
+                            @endif
+                            @if($attendanceRequest->provided_by && $attendanceRequest->updated_at)
+                                <p>Diserahkan oleh: <span class="text-slate-300 font-semibold">{{ $attendanceRequest->provider->name }}</span></p>
+                                <p>Waktu Serah: <span class="text-slate-300">{{ $attendanceRequest->updated_at->translatedFormat('d F Y, H:i') }}</span></p>
+                            @endif
+                        </div>
+                    </div>
+                    <a href="{{ route('attendance.monthly_report', ['month' => $selectedMonth]) }}" target="_blank" class="block w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition">
+                        Lihat Rekap Absensi (PDF)
+                    </a>
+                @endif
+            </div>
+
+            <!-- Generate Payroll Panel -->
+            <div class="glass-panel p-6 rounded-2xl h-fit">
+                <h3 class="font-bold text-lg text-slate-200 border-b border-slate-800 pb-4 mb-4">Generate Slip Gaji</h3>
             <form action="{{ route('payslips.generate') }}" method="POST" class="space-y-4">
                 @csrf
                 
@@ -35,15 +85,23 @@
                     <p class="text-[10px] text-slate-400 mt-1">Gaji Bersih = Gaji Pokok + Tunjangan - (Jumlah Alpa x Potongan)</p>
                 </div>
 
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition duration-200">
-                    Proses & Generate Slip
-                </button>
+                @if(!$attendanceRequest || $attendanceRequest->status !== 'provided')
+                    <button type="submit" disabled class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-500 font-medium cursor-not-allowed border border-slate-750">
+                        Proses & Generate Slip (Terkunci)
+                    </button>
+                    <p class="text-[10px] text-rose-400 font-semibold text-center mt-2">Tombol terkunci karena data absensi bulan ini belum diserahkan oleh HRD.</p>
+                @else
+                    <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition duration-200">
+                        Proses & Generate Slip
+                    </button>
+                @endif
             </form>
+        </div>
         </div>
         @endif
 
-        <!-- Payroll list panel -->
-        <div class="@if(Auth::user()->isOwner()) lg:col-span-3 @else lg:col-span-2 @endif glass-panel p-6 rounded-2xl">
+        <!-- Payroll list panel (Full Width below) -->
+        <div class="glass-panel p-6 rounded-2xl">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
                 <h3 class="font-bold text-lg text-slate-200">Daftar Payroll Bulan: <span class="text-blue-400 font-extrabold">{{ $selectedMonth }}</span></h3>
                 
@@ -95,7 +153,7 @@
                                 </td>
                                 <td class="py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        @if($ps->status === 'draft')
+                                        @if($ps->status === 'draft' && !Auth::user()->isOwner())
                                             <form action="{{ route('payslips.pay', $ps->id) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
@@ -160,7 +218,7 @@
                         </div>
 
                         <div class="flex justify-end gap-2 pt-2 border-t border-slate-800/40">
-                            @if($ps->status === 'draft')
+                            @if($ps->status === 'draft' && !Auth::user()->isOwner())
                                 <form action="{{ route('payslips.pay', $ps->id) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
