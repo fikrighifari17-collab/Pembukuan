@@ -13,6 +13,31 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/debug-attendance', function() {
+    $selectedDate = request('date', now()->format('Y-m-d'));
+    $output = [];
+    $output['app_timezone'] = config('app.timezone');
+    $output['php_timezone'] = date_default_timezone_get();
+    $output['now'] = now()->toIso8601String();
+    
+    $employees = \App\Models\Employee::with(['attendances'])->get();
+    foreach ($employees as $emp) {
+        $empData = ['name' => $emp->name, 'attendances' => []];
+        foreach ($emp->attendances as $att) {
+            $empData['attendances'][] = [
+                'id' => $att->id,
+                'raw_date' => $att->getRawOriginal('date'),
+                'carbon_date' => $att->date instanceof \Carbon\Carbon ? $att->date->toIso8601String() : 'not carbon',
+                'formatted' => \Carbon\Carbon::parse($att->date)->format('Y-m-d'),
+                'matches' => \Carbon\Carbon::parse($att->date)->format('Y-m-d') === $selectedDate,
+                'status' => $att->status
+            ];
+        }
+        $output['employees'][] = $empData;
+    }
+    return response()->json($output);
+});
+
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

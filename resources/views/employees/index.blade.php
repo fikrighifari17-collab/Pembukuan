@@ -109,47 +109,45 @@
                                         @php
                                             $todayStr = $selectedDate;
                                             $todayAttendance = $emp->attendances->first(function($att) use ($todayStr) {
-                                                return $att->date instanceof \Carbon\Carbon 
-                                                    ? $att->date->format('Y-m-d') === $todayStr 
-                                                    : $att->date === $todayStr;
+                                                return \Carbon\Carbon::parse($att->date)->format('Y-m-d') === $todayStr;
                                             });
-                                            $status = $todayAttendance ? $todayAttendance->status : 'present';
+                                            $status = $todayAttendance ? $todayAttendance->status : 'absent';
                                         @endphp
                                         <tr>
                                             <td class="py-3 text-slate-200 font-medium">{{ $emp->name }}</td>
                                             <td class="py-3 text-slate-400 text-xs">{{ $emp->position }}</td>
                                             <td class="py-3 text-center">
-                                                @if(Auth::user()->isOwner())
-                                                    @if($status === 'present')
-                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold">✓</span>
-                                                    @else
-                                                        <span class="text-slate-600">-</span>
-                                                    @endif
-                                                @else
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} class="w-4 h-4 text-[#FFBF00] focus:ring-[#FFBF00] bg-slate-900 border-slate-700 focus:ring-offset-slate-900">
-                                                @endif
+                                                 @if(Auth::user()->isOwner())
+                                                     @if($status === 'present')
+                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold">✓</span>
+                                                     @else
+                                                         <span class="text-slate-600">-</span>
+                                                     @endif
+                                                 @else
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 cursor-not-allowed">
+                                                 @endif
                                             </td>
                                             <td class="py-3 text-center">
-                                                @if(Auth::user()->isOwner())
-                                                    @if($status === 'absent')
-                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-xs font-bold">✗</span>
-                                                    @else
-                                                        <span class="text-slate-600">-</span>
-                                                    @endif
-                                                @else
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} class="w-4 h-4 text-rose-500 focus:ring-rose-500 bg-slate-900 border-slate-700 focus:ring-offset-slate-900">
-                                                @endif
+                                                 @if(Auth::user()->isOwner())
+                                                     @if($status === 'absent')
+                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-xs font-bold">✗</span>
+                                                     @else
+                                                         <span class="text-slate-600">-</span>
+                                                     @endif
+                                                 @else
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-rose-500 focus:ring-rose-500 focus:ring-offset-slate-900 cursor-not-allowed">
+                                                 @endif
                                             </td>
                                             <td class="py-3 text-center">
-                                                @if(Auth::user()->isOwner())
-                                                    @if($status === 'leave')
-                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-950 text-amber-400 border border-amber-800 text-xs font-bold">i</span>
-                                                    @else
-                                                        <span class="text-slate-600">-</span>
-                                                    @endif
-                                                @else
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} class="w-4 h-4 text-amber-500 focus:ring-amber-500 bg-slate-900 border-slate-700 focus:ring-offset-slate-900">
-                                                @endif
+                                                 @if(Auth::user()->isOwner())
+                                                     @if($status === 'leave')
+                                                         <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-950 text-amber-400 border border-amber-800 text-xs font-bold">i</span>
+                                                     @else
+                                                         <span class="text-slate-600">-</span>
+                                                     @endif
+                                                 @else
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-4 h-4 text-amber-500 focus:ring-amber-500 focus:ring-offset-slate-900 cursor-not-allowed">
+                                                 @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -163,11 +161,9 @@
                                 @php
                                     $todayStr = $selectedDate;
                                     $todayAttendance = $emp->attendances->first(function($att) use ($todayStr) {
-                                        return $att->date instanceof \Carbon\Carbon 
-                                            ? $att->date->format('Y-m-d') === $todayStr 
-                                            : $att->date === $todayStr;
+                                        return \Carbon\Carbon::parse($att->date)->format('Y-m-d') === $todayStr;
                                     });
-                                    $status = $todayAttendance ? $todayAttendance->status : 'present';
+                                    $status = $todayAttendance ? $todayAttendance->status : 'absent';
                                 @endphp
                                 <div class="p-4 rounded-xl bg-slate-900/20 border border-slate-800/80 space-y-3">
                                     <div class="flex justify-between items-start border-b border-slate-800/40 pb-2">
@@ -190,20 +186,20 @@
                                                 @endif
                                             </div>
                                         @else
-                                            <div class="grid grid-cols-3 gap-2">
-                                                <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 hover:border-blue-500/50 cursor-pointer transition">
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} class="w-3.5 h-3.5 text-[#FFBF00] focus:ring-[#FFBF00] bg-slate-900 border-slate-700">
-                                                    <span class="text-[10px] text-slate-300 mt-1 font-medium">Hadir</span>
-                                                </label>
-                                                <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 hover:border-rose-500/50 cursor-pointer transition">
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} class="w-3.5 h-3.5 text-rose-500 focus:ring-rose-500 bg-slate-900 border-slate-700">
-                                                    <span class="text-[10px] text-slate-300 mt-1 font-medium">Alpa</span>
-                                                </label>
-                                                <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 hover:border-amber-500/50 cursor-pointer transition">
-                                                    <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} class="w-3.5 h-3.5 text-amber-500 focus:ring-amber-500 bg-slate-900 border-slate-700">
-                                                    <span class="text-[10px] text-slate-300 mt-1 font-medium">Izin</span>
-                                                </label>
-                                            </div>
+                                             <div class="grid grid-cols-3 gap-2">
+                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="present" {{ $status === 'present' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-emerald-500 focus:ring-emerald-500">
+                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Hadir</span>
+                                                 </label>
+                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="absent" {{ $status === 'absent' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-rose-500 focus:ring-rose-500">
+                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Alpa</span>
+                                                 </label>
+                                                 <label class="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-900/50 border border-slate-850 cursor-not-allowed opacity-80">
+                                                     <input type="radio" name="status[{{ $emp->id }}]" value="leave" {{ $status === 'leave' ? 'checked' : '' }} onclick="return false;" style="pointer-events: none;" class="attendance-radio w-3.5 h-3.5 text-amber-500 focus:ring-amber-500">
+                                                     <span class="text-[10px] text-slate-300 mt-1 font-medium">Izin</span>
+                                                 </label>
+                                             </div>
                                         @endif
                                     </div>
                                 </div>

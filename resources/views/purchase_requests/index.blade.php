@@ -20,7 +20,8 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Estimasi Biaya (Rupiah)</label>
-                    <input type="number" step="0.01" name="amount" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 750000">
+                    <input type="text" id="amount_input" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 750.000">
+                    <input type="hidden" name="amount" id="amount_hidden">
                 </div>
 
                 <div>
@@ -96,5 +97,26 @@
         </div>
 
     </div>
+
+    @if(!Auth::user()->isOwner())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const amountInput = document.getElementById('amount_input');
+            const amountHidden = document.getElementById('amount_hidden');
+
+            if (amountInput && amountHidden) {
+                amountInput.addEventListener('input', function (e) {
+                    let value = this.value.replace(/\D/g, '');
+                    amountHidden.value = value;
+                    this.value = value ? formatNumber(value) : '';
+                });
+            }
+
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+        });
+    </script>
+    @endif
 
 @endsection

@@ -62,11 +62,15 @@
         body.light-theme .text-white { color: #0f172a !important; }
         body.light-theme .bg-slate-900 { background-color: var(--navy-light) !important; }
         body.light-theme .bg-slate-900\/60 { background-color: rgba(15, 48, 64, 0.04) !important; }
-        body.light-theme .bg-slate-900\/40 { background-color: rgba(15, 48, 64, 0.04) !important; }
+        body.light-theme .bg-slate-900\/50 { background-color: rgba(15, 48, 64, 0.03) !important; }
+        body.light-theme .bg-slate-900\/40 { background-color: rgba(15, 48, 64, 0.03) !important; }
+        body.light-theme .bg-slate-900\/20 { background-color: rgba(15, 48, 64, 0.015) !important; }
+        body.light-theme .bg-slate-900\/10 { background-color: rgba(15, 48, 64, 0.01) !important; }
         body.light-theme .bg-slate-950\/40 { background-color: #f1f5f9 !important; }
         body.light-theme .border-slate-800 { border-color: var(--border-slate-800) !important; }
         body.light-theme .border-slate-700 { border-color: var(--input-border) !important; }
-        body.light-theme input, body.light-theme select, body.light-theme textarea {
+        body.light-theme .hover\:bg-slate-900\/10:hover { background-color: rgba(15, 48, 64, 0.04) !important; }
+        body.light-theme input:not([type="radio"]):not([type="checkbox"]), body.light-theme select, body.light-theme textarea {
             background-color: var(--input-bg) !important;
             border-color: var(--input-border) !important;
             color: var(--text-color) !important;
@@ -74,6 +78,81 @@
         body.light-theme input:-webkit-autofill {
             -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
             -webkit-text-fill-color: #0f172a !important;
+        }
+
+        /* Light Theme Status Badges & Text Softening */
+        body.light-theme .bg-emerald-950, body.light-theme .bg-emerald-950\/80 { background-color: #d1fae5 !important; }
+        body.light-theme .text-emerald-400 { color: #047857 !important; }
+        body.light-theme .border-emerald-800 { border-color: #a7f3d0 !important; }
+
+        body.light-theme .bg-rose-950, body.light-theme .bg-rose-950\/80 { background-color: #ffe4e6 !important; }
+        body.light-theme .text-rose-400 { color: #b91c1c !important; }
+        body.light-theme .border-rose-800 { border-color: #fecdd3 !important; }
+
+        body.light-theme .bg-amber-950 { background-color: #fef3c7 !important; }
+        body.light-theme .text-amber-400 { color: #b45309 !important; }
+        body.light-theme .border-amber-800 { border-color: #fde68a !important; }
+
+        body.light-theme .bg-violet-950 { background-color: #f3e8ff !important; }
+        body.light-theme .text-violet-400 { color: #6d28d9 !important; }
+        body.light-theme .border-violet-800 { border-color: #e9d5ff !important; }
+
+        body.light-theme .text-blue-400 { color: #1d4ed8 !important; }
+        body.light-theme .text-blue-300 { color: #1e40af !important; }
+
+        /* Soften the card borders on light theme */
+        body.light-theme .border-violet-500 { border-color: #a78bfa !important; }
+        body.light-theme .border-emerald-500 { border-color: #6ee7b7 !important; }
+        body.light-theme .border-rose-500 { border-color: #fca5a5 !important; }
+        body.light-theme .border-blue-500 { border-color: #93c5fd !important; }
+        body.light-theme .border-amber-500 { border-color: #fde68a !important; }
+
+        /* Category selection Segment overrides in Light Mode */
+        body.light-theme .category-choice-box {
+            background-color: #ffffff !important;
+            border-color: rgba(15, 48, 64, 0.15) !important;
+            color: #64748b !important;
+        }
+        body.light-theme .category-choice-box:hover {
+            background-color: #f8fafc !important;
+        }
+        body.light-theme .peer:checked + .category-choice-income {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #047857 !important;
+        }
+        body.light-theme .peer:checked + .category-choice-expense {
+            background-color: #ffe4e6 !important;
+            border-color: #f43f5e !important;
+            color: #be123c !important;
+        }
+
+        /* Hide scrollbars visually but keep scrolling functional */
+        .overflow-x-auto::-webkit-scrollbar {
+            display: none !important;
+        }
+        .overflow-x-auto {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+        }
+
+        /* Attendance Radio custom styles to ensure high contrast in checked state on both themes */
+        input[type="radio"].attendance-radio {
+            background-color: rgba(10, 30, 40, 0.6) !important;
+            border-color: rgba(255, 191, 0, 0.15) !important;
+        }
+        input[type="radio"].attendance-radio:checked {
+            background-color: currentColor !important;
+            border-color: transparent !important;
+        }
+
+        body.light-theme input[type="radio"].attendance-radio {
+            background-color: #ffffff !important;
+            border-color: rgba(15, 48, 64, 0.15) !important;
+        }
+        body.light-theme input[type="radio"].attendance-radio:checked {
+            background-color: currentColor !important;
+            border-color: transparent !important;
         }
 
         /* Dynamic Theme Overrides */

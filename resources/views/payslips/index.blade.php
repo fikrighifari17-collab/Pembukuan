@@ -30,7 +30,8 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Potongan per Hari Alpa (Rupiah)</label>
-                    <input type="number" name="deduction_per_absent" value="100000" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="deduction_input" value="100.000" required class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="hidden" name="deduction_per_absent" id="deduction_hidden" value="100000">
                     <p class="text-[10px] text-slate-400 mt-1">Gaji Bersih = Gaji Pokok + Tunjangan - (Jumlah Alpa x Potongan)</p>
                 </div>
 
@@ -180,5 +181,26 @@
         </div>
 
     </div>
+
+    @if(!Auth::user()->isOwner())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deductionInput = document.getElementById('deduction_input');
+            const deductionHidden = document.getElementById('deduction_hidden');
+
+            if (deductionInput && deductionHidden) {
+                deductionInput.addEventListener('input', function (e) {
+                    let value = this.value.replace(/\D/g, '');
+                    deductionHidden.value = value;
+                    this.value = value ? formatNumber(value) : '';
+                });
+            }
+
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+        });
+    </script>
+    @endif
 
 @endsection
