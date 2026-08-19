@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PEMBUKUAN PT ARMADA DIGITAL MARKETING SYARIAH</title>
+    <title>ADMS PEMBUKUAN</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -298,13 +299,18 @@
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
     <aside id="sidebar" class="w-64 glass-panel border-r border-slate-800 flex flex-col shrink-0 transition-all duration-300">
         <div class="p-6 border-b border-slate-800 flex items-center justify-between">
-            <div class="sidebar-full-info flex-1 pr-2">
-                <h1 class="text-lg font-black text-[#FFBF00] flex items-center gap-1.5 leading-none uppercase">
-                    <svg class="w-5 h-5 text-[#FFBF00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>PEMBUKUAN</span>
-                </h1>
-                <p class="text-[9px] font-bold text-slate-200 mt-1 uppercase tracking-wide leading-tight">PT ARMADA DIGITAL MARKETING SYARIAH</p>
-                <p class="text-[8px] text-slate-400 mt-0.5 uppercase tracking-widest font-semibold">Sistem Keuangan Internal</p>
+            <div class="sidebar-full-info flex-1 pr-2 flex items-center gap-3">
+                <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="h-10 w-auto object-contain shrink-0 filter drop-shadow-md">
+                <div>
+                    <h1 class="text-base font-black text-[#FFBF00] leading-none uppercase tracking-wider">
+                        ADMS PEMBUKUAN
+                    </h1>
+                    <p class="text-[9px] font-bold text-slate-200 mt-1 uppercase tracking-wide leading-tight">PT ARMADA DIGITAL MARKETING SYARIAH</p>
+                    <p class="text-[8px] text-slate-400 mt-0.5 uppercase tracking-widest font-semibold">Sistem Keuangan Internal</p>
+                </div>
+            </div>
+            <div class="sidebar-collapsed-info hidden">
+                <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="h-9 w-auto object-contain mx-auto filter drop-shadow-md">
             </div>
             <button id="btn-toggle-sidebar" class="text-slate-400 hover:text-white focus:outline-none transition duration-200 shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>

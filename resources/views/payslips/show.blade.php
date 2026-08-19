@@ -51,9 +51,12 @@
         
         <!-- Header -->
         <div class="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
-            <div>
-                <h1 class="text-xl font-bold uppercase tracking-wider text-slate-800">SLIP GAJI KARYAWAN</h1>
-                <p class="text-xs text-slate-500 mt-1">Sistem Keuangan ERP Internal</p>
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="h-12 w-auto object-contain">
+                <div>
+                    <h1 class="text-xl font-bold uppercase tracking-wider text-slate-800">SLIP GAJI KARYAWAN</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">PT ARMADA DIGITAL MARKETING SYARIAH — ADMS PEMBUKUAN</p>
+                </div>
             </div>
             <div class="text-right">
                 <span class="px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full bg-slate-100 text-slate-700 border border-slate-300">

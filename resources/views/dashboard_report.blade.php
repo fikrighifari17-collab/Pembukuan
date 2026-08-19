@@ -51,15 +51,18 @@
         
         <!-- Header / Kop Surat -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-slate-800 pb-6 mb-8 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold uppercase tracking-wide text-slate-900">
-                    @if($type === 'all') LAPORAN KAS & KEUANGAN LENGKAP @endif
-                    @if($type === 'company_funds') LAPORAN SALDO UANG PERUSAHAAN @endif
-                    @if($type === 'income') LAPORAN TOTAL PEMASUKAN (INCOME) @endif
-                    @if($type === 'expense') LAPORAN TOTAL PENGELUARAN (EXPENSE) @endif
-                    @if($type === 'balance') LAPORAN SALDO BERSIH OPERASIONAL @endif
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">Diekspor secara otomatis dari Sistem Pembukuan ERP</p>
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="h-14 w-auto object-contain">
+                <div>
+                    <h1 class="text-xl font-bold uppercase tracking-wide text-slate-900">
+                        @if($type === 'all') LAPORAN KAS & KEUANGAN LENGKAP @endif
+                        @if($type === 'company_funds') LAPORAN SALDO UANG PERUSAHAAN @endif
+                        @if($type === 'income') LAPORAN TOTAL PEMASUKAN (INCOME) @endif
+                        @if($type === 'expense') LAPORAN TOTAL PENGELUARAN (EXPENSE) @endif
+                        @if($type === 'balance') LAPORAN SALDO BERSIH OPERASIONAL @endif
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-0.5">PT ARMADA DIGITAL MARKETING SYARIAH — ADMS PEMBUKUAN</p>
+                </div>
             </div>
             <div class="text-left md:text-right">
                 <p class="text-xs text-slate-400">Tanggal Cetak</p>

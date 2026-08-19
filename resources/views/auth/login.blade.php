@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - PEMBUKUAN PT ARMADA DIGITAL MARKETING SYARIAH</title>
+    <title>Login - ADMS PEMBUKUAN</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -33,11 +34,9 @@
     <div class="w-full md:w-5/12 bg-[#081d27] flex flex-col justify-between p-8 md:p-12 overflow-y-auto border-r border-slate-800/40">
         
         <!-- Header Brand logo -->
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-[#FFBF00] flex items-center justify-center text-[#081d27] font-bold">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <span class="text-[10px] font-black tracking-wider text-[#FFBF00] uppercase leading-none">PT ARMADA DIGITAL MARKETING SYARIAH</span>
+        <div class="flex items-center gap-3">
+            <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="h-8 w-auto object-contain shrink-0 filter drop-shadow">
+            <span class="text-[11px] font-black tracking-wider text-[#FFBF00] uppercase leading-none">ADMS PEMBUKUAN</span>
         </div>
 
         <!-- Center Login Form -->
@@ -81,24 +80,7 @@
             </form>
         </div>
 
-        <!-- Quick Demo Credentials Box -->
-        <div class="glass-panel rounded-2xl p-4 text-[10px] text-slate-400 border border-slate-800">
-            <p class="font-bold text-slate-200 mb-2">AKUN DEMO CEPAT (Password: <span class="text-[#FFBF00]">password</span>):</p>
-            <div class="grid grid-cols-3 gap-2 text-[9px]">
-                <div class="bg-slate-950/40 p-2 rounded border border-slate-800">
-                    <p class="font-bold text-slate-300">Owner</p>
-                    <p class="truncate text-slate-400">owner@example.com</p>
-                </div>
-                <div class="bg-slate-950/40 p-2 rounded border border-slate-800">
-                    <p class="font-bold text-slate-300">Finance</p>
-                    <p class="truncate text-slate-400">finance@example.com</p>
-                </div>
-                <div class="bg-slate-950/40 p-2 rounded border border-slate-800">
-                    <p class="font-bold text-slate-300">Employee</p>
-                    <p class="truncate text-slate-400">andi@example.com</p>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <!-- RIGHT SIDE: Premium Brand Showcase (7/12 width on desktop) -->
@@ -110,11 +92,11 @@
 
         <!-- Branding card details -->
         <div class="relative z-10 text-center space-y-6 max-w-lg">
-            <div class="w-20 h-20 mx-auto rounded-3xl bg-[#FFBF00]/10 flex items-center justify-center border border-[#FFBF00]/25 shadow-2xl shadow-[#FFBF00]/10 mb-4 animate-bounce">
-                <svg class="w-10 h-10 text-[#FFBF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="w-64 h-40 mx-auto flex items-center justify-center mb-6 transition-transform hover:scale-105 duration-300">
+                <img src="{{ asset('images/logo.png') }}" alt="ADMS Logo" class="max-h-full max-w-full object-contain filter drop-shadow-2xl">
             </div>
             
-            <h1 class="text-4xl lg:text-5xl font-black text-[#FFBF00] tracking-tight uppercase leading-none">PEMBUKUAN</h1>
+            <h1 class="text-4xl lg:text-5xl font-black text-[#FFBF00] tracking-tight uppercase leading-none">ADMS PEMBUKUAN</h1>
             <p class="text-xs lg:text-sm text-slate-300 tracking-widest font-semibold uppercase leading-snug">PT ARMADA DIGITAL MARKETING SYARIAH</p>
             <div class="w-16 h-1 bg-[#FFBF00] mx-auto rounded-full"></div>
             <p class="text-slate-400 text-xs max-w-sm mx-auto leading-relaxed">Sistem Keuangan & Operasional Syariah Internal Perusahaan Terintegrasi.</p>
