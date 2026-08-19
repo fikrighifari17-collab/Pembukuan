@@ -4,6 +4,21 @@ Sistem Keuangan, Penggajian, Operasional & Absensi Karyawan Terintegrasi.
 
 ---
 
+## 🔑 Akun Demo Login
+
+Gunakan kredensial berikut untuk masuk dan menguji sistem:
+
+| Peran (Role) | Hak Akses Utama | Alamat Email | Password |
+| :--- | :--- | :--- | :--- |
+| **Owner** | Laporan Keuangan, Absensi (Read-Only) & Approval Request | `owner@example.com` | `password` |
+| **Finance** | Pencatatan Transaksi Kas, Kelola Gaji & Request Pembelian | `finance@example.com` | `password` |
+| **HRD** | Manajemen Absensi Karyawan, Request Absensi & Laporan Kehadiran | `hrd@example.com` | `password` |
+| **Andi (Karyawan)** | Check-in / Check-out Absensi, Pengajuan Request Pembelian & Slip Gaji | `andi@example.com` | `password` |
+
+---
+
+---
+
 ## 🌟 Fitur & Keunggulan Utama Aplikasi
 
 ### 1. 💰 Pencatatan & Manajemen Keuangan (Accounting & Cash Flow)
@@ -46,21 +61,6 @@ Sistem memiliki 4 Peran (*Role*) dengan hak akses yang terpisah:
 - **Desain Glassmorphism Navy & Gold**: Tampilan visual premium dan elegan.
 - **Toggle Dark / Light Mode**: Fitur pergantian mode gelap dan terang sesuai kenyamanan pengguna.
 - **Responsive Layout**: Kompatibel digunakan di Desktop, Tablet, maupun Smartphone.
-
----
-
-## 🔑 Akun Demo Login
-
-Gunakan kredensial berikut untuk masuk dan menguji sistem:
-
-| Peran (Role) | Hak Akses Utama | Alamat Email | Password |
-| :--- | :--- | :--- | :--- |
-| **Owner** | Laporan Keuangan, Absensi (Read-Only) & Approval Request | `owner@example.com` | `password` |
-| **Finance** | Pencatatan Transaksi Kas, Kelola Gaji & Request Pembelian | `finance@example.com` | `password` |
-| **HRD** | Manajemen Absensi Karyawan, Request Absensi & Laporan Kehadiran | `hrd@example.com` | `password` |
-| **Andi (Karyawan)** | Check-in / Check-out Absensi, Pengajuan Request Pembelian & Slip Gaji | `andi@example.com` | `password` |
-
----
 
 ## 🛠️ Cara Instalasi & Pengaturan Database
 
